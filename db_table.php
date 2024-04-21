@@ -25,15 +25,31 @@ class db_table
     return $data;
 }
 
+	// Функция для экранирования значений
+	function quote_value($value) 
+	{
+		return "'" . addslashes($value) . "'";
+	}
+	// 
+    function add_data($oracleDB, $data) 
+	{
+    $table_name = $this->table_name;
+    $columns = implode(', ', array_keys($data));
+    $values = implode(', ', array_map(array($this, 'quote_value'), array_values($data)));
 
-     function add_data($data) 
-	 {
-        // Подготовьте и выполните запрос на добавление данных в таблицу
-        // Например:
-        // $query = "INSERT INTO $this->table_name (...) VALUES (...)";
-        // $result = $db->execute($query);
-        // return $result;
-    }
+    $query = "INSERT INTO {$table_name} ({$columns}) VALUES ({$values})";
+	echo $query;
+     $result = $oracleDB->execute($query);
+	// // Сохраним изменения
+	// $query = "commit";
+	 // $result = $oracleDB->execute($query);
+	// $query = "select sin(3.14) from dual";
+	 // $result = $oracleDB->execute($query);
+	 // $query = "SELECT * FROM {$this->table_name}";
+    // $result = $oracleDB->execute($query);
+	}
+
+
 
      function edit_data($data, $condition) 
 	 {

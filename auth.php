@@ -51,6 +51,8 @@ if (!empty($_POST["login"]) && !empty($_POST["pass"]))
             );
 
             // Перенаправляем на страницу меню
+			$_SESSION['mode'] = 'get';
+			$_SESSION['table'] = 'personal';
             header('Location: ./menu.php');
             exit;
         } 
