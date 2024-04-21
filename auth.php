@@ -1,41 +1,69 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="RU8PC866">
+    <title>авторизации</title>
+</head>
+<body>
 <?php
-session_start();
-
 if (!empty($_POST["login"]) && !empty($_POST["pass"])) {
     include "./conn_bd.php";
+    
+    // Получаем данные из формы
     $login = $_POST['login'];
     $password = $_POST['pass'];
     
-    $select = "SELECT * FROM Personal WHERE per_email = :login AND per_password = :password";
-    $check_user = OCIParse($c, $select);
-    OCIBindByName($check_user, ":login", $login);
-    OCIBindByName($check_user, ":password", $password);
-    OCIExecute($check_user, OCI_DEFAULT);
+    // Создаем экземпляр класса OracleDB
+    require_once "./conn_bd.php";
+    $oracleDB = new OracleDB();
+	global $oracleDB;
+	$_SESSION['oracleDB'] = $oracleDB;
     
-    // Проверяем, есть ли строки в результате запроса
-    if (OCIFetch($check_user)) {
-        // Извлекаем данные из текущей строки результата
-        $id = ociresult($check_user, "PER_ID");
-        $name = ociresult($check_user, "PER_NAME");
-        $surname = ociresult($check_user, "PER_SURNAME");
-        $status = ociresult($check_user, "PER_STATUS");
-        $func = ociresult($check_user, "PER_FUNC");
+	session_start();
+	
+    // Открываем соединение с базой данных
+    if ($oracleDB->open_conn()) {
+        // Создаем SQL запрос с использованием параметров
+        $query = "SELECT * FROM Personal WHERE per_email = '$login' AND per_password = '$password'";
+		$result = $oracleDB->execute($query);
 
-        // Сохраняем данные в сессию
-        $_SESSION['user'] = array(
-            "id"       => $id,
-            "name"     => $name,
-            "surname"  => $surname,
-            "status"   => $status,
-            "func"     => $func
-        );
+        
+		echo $result;
+		echo $oracleDB->num_rows($result);
+		
+        // Проверяем, есть ли строки в результате запроса
+        // if ($result && $oracleDB->num_rows($result) > 0) {
+			if (OCIFetch($result)) {				
+            // Извлекаем данные из результата
+			$id = ociresult($result, "PER_ID");
+			$name = ociresult($result, "PER_NAME");
+			$surname = ociresult($result, "PER_SURNAME");
+			$status = ociresult($result, "PER_STATUS");
+			$func = ociresult($result, "PER_FUNC");
 
-        header('Location: ./menu.php');
-        exit;
+            // Сохраняем данные в сессию
+            $_SESSION['user'] = array(
+                "id"       => $id,
+                "name"     => $name,
+                "surname"  => $surname,
+                "status"   => $status,
+                "func"     => $func
+            );
+
+            // Перенаправляем на страницу меню
+            header('Location: ./menu.php');
+            exit;
+        } 
+		// else {
+          // // Перенаправляем на страницу авторизации с сообщением об ошибке
+            // $login = urlencode($login);
+            // header("Location: ../index.php?m=1&login=$login");
+            // exit;
+        // }
     } else {
-    $login = urlencode($_POST['login']);
-    header("Location: ../index.php?m=1&login=$login");
-    exit;
+        // В случае ошибки соединения выводим сообщение об ошибке
+        echo "Ошибка соединения с базой данных.";
     }
 }
 ?>
+</body>
+</html>
