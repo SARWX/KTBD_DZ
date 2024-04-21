@@ -5,7 +5,8 @@
 </head>
 <body>
 <?php
-if (!empty($_POST["login"]) && !empty($_POST["pass"])) {
+if (!empty($_POST["login"]) && !empty($_POST["pass"])) 
+{
     include "./conn_bd.php";
     
     // Получаем данные из формы
@@ -21,18 +22,18 @@ if (!empty($_POST["login"]) && !empty($_POST["pass"])) {
 	session_start();
 	
     // Открываем соединение с базой данных
-    if ($oracleDB->open_conn()) {
+    if ($oracleDB->open_conn()) 
+	{
         // Создаем SQL запрос с использованием параметров
         $query = "SELECT * FROM Personal WHERE per_email = '$login' AND per_password = '$password'";
 		$result = $oracleDB->execute($query);
-
         
 		echo $result;
 		echo $oracleDB->num_rows($result);
 		
         // Проверяем, есть ли строки в результате запроса
-        // if ($result && $oracleDB->num_rows($result) > 0) {
-			if (OCIFetch($result)) {				
+		if (OCIFetch($result)) 
+		{				
             // Извлекаем данные из результата
 			$id = ociresult($result, "PER_ID");
 			$name = ociresult($result, "PER_NAME");
@@ -53,13 +54,16 @@ if (!empty($_POST["login"]) && !empty($_POST["pass"])) {
             header('Location: ./menu.php');
             exit;
         } 
-		// else {
-          // // Перенаправляем на страницу авторизации с сообщением об ошибке
-            // $login = urlencode($login);
-            // header("Location: ../index.php?m=1&login=$login");
-            // exit;
-        // }
-    } else {
+		else 
+		{
+          // Перенаправляем на страницу авторизации с сообщением об ошибке
+            $login = urlencode($login);
+            header("Location: ../index.php?m=1&login=$login");
+            exit;
+        }
+    } 
+	else 
+	{
         // В случае ошибки соединения выводим сообщение об ошибке
         echo "Ошибка соединения с базой данных.";
     }

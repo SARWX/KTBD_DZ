@@ -16,38 +16,38 @@ class OracleDB {
     var $statement; // Выражение
     
     // Открытие соединения с базой данных
-    function open_conn() {
+    function open_conn() 
+	{
         $this->connection = OCILogon($this->login, $this->password, $this->DB_name, $this->text_encode);
         return $this->connection;
     }
     
     // Закрытие соединения с базой данных
-    function close_conn() {
+    function close_conn() 
+	{
         OCILogoff($this->connection);
     }
     
 	// Выволнение запроса
-	function execute($query) {
+	function execute($query) 
+	{
 		$this->statement = OCIParse($this->connection, $query);
 		OCIExecute($this->statement);
 		return $this->statement;
 	}
 
-    
-    // Получение ассоциативного массива с данными из результата запроса
-    // function fetch_assoc($result) {
-        // return OCIFetchInto($result, $row, OCI_ASSOC);
-		
 	// Получение ассоциативного массива с данными из результата запроса
-	function fetch_assoc($result) {
+	function fetch_assoc($result) 
+	{
 		// Используем OCI_FETCHSTATEMENT_BY_ROW + OCI_ASSOC для получения ассоциативного массива
 		return OCIFetchStatement($result, $row, null, null, OCI_FETCHSTATEMENT_BY_ROW + OCI_ASSOC);
     }
 	
 	// Получение количества строк в результате запроса
-	function num_rows($query) {
+	function num_rows($query) 
+	{
 		return OCIRowCount($query);
-}
+	}
 }
 ?>
 </body>
